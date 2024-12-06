@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% if g.user %}
+<a class="action" href="{{ url_for('simplecards.index') }}">Public</a>
+<a class="action" href="{{ url_for('simplecards.owned') }}">Owned</a>
+<a class="action" href="{{ url_for('simplecards.import_csv') }}">Import</a>
+<a class="action" href="{{ url_for('simplecards.export') }}">Export</a>
+<a class="action" href="{{ url_for('simplecards.settings') }}">Settings</a>
+<a class="action" href="{{ url_for('simplecards.statistics') }}">Statistics</a>
+{% else %}
+<a class="action" href="{{ url_for('simplecards.index') }}">Public</a>
+{% endif %}
+{% endblock %}
+
+<!--{{ group['created'].strftime('%Y-%m-%d') }}-->
+
+{% block content %}
+<div class="container">
+  <div id="add-group">
+    <p>Groups</p>
+    <a href="{{ url_for('simplecards.create') }}"><img src="{{ url_for('static', filename='add.svg') }}" alt="add"></a>
+  </div>
+  <div id="add-group">
+    <p>Groups</p>
+    <a href="{{ url_for('simplecards.create') }}"><img src="{{ url_for('static', filename='add.svg') }}" alt="add"></a>
+  </div>
+  <div id="add-group">
+    <p>Groups</p>
+    <a href="{{ url_for('simplecards.create') }}"><img src="{{ url_for('static', filename='add.svg') }}" alt="add"></a>
+  </div>
+
+  <div class="groups">
+    {% for group in groups %}
+    <div class="group">
+      <div class="first-row">
+        <p>{{ group['name'] }}</p>
+        <p class="about-group">by {{ group['username'] }}</p>
+      </div>
+      {% if g.user['id'] == group['owner_id'] %}
+      <div class="second-row">
+        <a class="action" href="{{ url_for('simplecards.update', id=group['id']) }}">Edit</a>
+      </div>
+      {% endif %}
+    </div>
+    <!-- {% if not loop.last %}
+  <hr>
+  {% endif %} -->
+  {% endfor %}
+  </div>
+  
+  
+</div>
+{% endblock %}

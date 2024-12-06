@@ -1,0 +1,32 @@
+<!doctype html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=dwvice-width, initial-scale=1.0" />
+  <title>{% block title %}{% endblock %}SimpleCards</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav>
+    <img src="{{ url_for('static', filename='cards.svg') }}" alt="sc-logo">
+    <span>SimpleCards</span>
+    <div class="auth">
+      {% if g.user %}
+        <span><i>{{ g.user['username'] }}</i></span>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.register') }}">Register</a>
+        <a href="{{ url_for('auth.login') }}">Login</a>
+      {% endif %}
+    </div>
+  </nav>
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  <section class="content">
+    
+    {% for message in get_flashed_messages() %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </section>
+</body>

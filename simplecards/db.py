@@ -28,6 +28,11 @@ def init_db():
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
+def update_db():
+    db = get_db()
+
+    with current_app.open_resource('schema_update.sql') as f:
+        db.executescript(f.read().decode('utf8'))
 
 @click.command('init-db')
 def init_db_command():
@@ -35,6 +40,10 @@ def init_db_command():
     init_db()
     click.echo('Initialized the database.')
 
+@click.command('update-db')
+def update_db_command():
+    update_db()
+    click.echo('Database updated.')
 
 sqlite3.register_converter(
     "timestamp", lambda v: datetime.fromisoformat(v.decode())
@@ -43,3 +52,4 @@ sqlite3.register_converter(
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(update_db_command)

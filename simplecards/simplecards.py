@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, session, redirect, render_template, request, url_for
 )
 from werkzeug.exceptions import abort
 
@@ -17,7 +17,59 @@ def index():
         ' WHERE g.public=1'
         ' ORDER BY name'
     ).fetchall()
-    return render_template('simplecards/index.html', groups=groups)
+
+    selected_group_id = 1
+    selected_deck_id = 1
+
+    #if len(groups) > 0:
+    selection = db.execute(
+        'SELECT *'
+        ' FROM user_selections'
+        ' WHERE user_id = ?',
+        (str(session.get('user_id')), )
+    ).fetchone()
+    if not selection:
+        selected_group_id = 1
+        selected_deck_id = 1
+    else:
+        selected_group_id = selection['selected_group_id']
+        selected_deck_id =selection['selected_deck_id']
+    
+    group = db.execute(
+        'SELECT *'
+        ' FROM groups'
+        ' WHERE id = ?',
+        (str(selected_group_id), )
+    ).fetchone()
+    selected_group_name = group['name']
+    selected_group_owner_id = group['owner_id']
+
+    deck = db.execute(
+        'SELECT *'
+        ' FROM deck'
+        ' WHERE id = ?',
+        (str(selected_deck_id), )
+    ).fetchone()
+    selected_deck_name = deck['name']
+
+    decks = db.execute(
+        'SELECT *'
+        ' FROM deck d'
+        ' WHERE public=1 AND group_id=(?)'
+        ' ORDER BY name',
+        (str(selected_group_id), )
+    ).fetchall()
+
+    print('Index group:',selected_group_name)
+    print('Index deck:',selected_deck_name)
+    
+    return render_template('simplecards/index.html', 
+                           groups=groups, 
+                           selected_group_id = selected_group_id, selected_group_name=selected_group_name,
+                           selected_group_owner_id=selected_group_owner_id, 
+                           selected_deck_id = selected_deck_id, selected_deck_name=selected_deck_name, 
+                           decks=decks, 
+                           )
 
 @bp.route('/owned')
 @login_required
@@ -44,9 +96,9 @@ def settings():
 def statistics():
     return render_template('simplecards/statistics.html')
 
-@bp.route('/create', methods=('GET', 'POST'))
+@bp.route('/create-group', methods=('GET', 'POST'))
 @login_required
-def create():
+def create_group():
     if request.method == 'POST':
         name = request.form['name']
         public = 1 if request.form['public'] else 0
@@ -68,7 +120,51 @@ def create():
             db.commit()
             return redirect(url_for('simplecards.index'))
 
-    return render_template('simplecards/create.html')
+    return render_template('simplecards/create-group.html')
+
+@bp.route('/create-deck', methods=('GET', 'POST'))
+@login_required
+def create_deck():
+    db = get_db()
+    selection = db.execute(
+        'SELECT *'
+        ' FROM user_selections'
+        ' WHERE user_id = ?',
+        (str(session.get('user_id')), )
+    ).fetchone()
+    selected_group_id = selection['selected_group_id']
+    group = db.execute(
+        'SELECT *'
+        ' FROM groups'
+        ' WHERE id = ?',
+        (str(selected_group_id), )
+    ).fetchone()
+    selected_group_name = group['name']
+    print('create_deck id:',selected_group_id)
+    print('create_deck name:',selected_group_name)
+
+    if request.method == 'POST':
+        name = request.form['name']
+        public = 1 if request.form['public'] else 0
+        error = None
+        deleted = 0
+
+        if not name:
+            error = 'Name is required.'
+
+        if error is not None:
+            flash(error)
+        else:
+            db.execute(
+                'INSERT INTO deck (group_id, name, public, deleted)'
+                ' VALUES (?, ?, ?, ?)',
+                (selected_group_id, name, public, deleted)
+            )
+            db.commit()
+            return redirect(url_for('simplecards.index'))
+
+    return render_template('simplecards/create-deck.html', selected_group_id=selected_group_id, selected_group_name=selected_group_name)
+
 
 def get_post(id, check_author=True):
     post = get_db().execute(

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<span>{% block title %}New Deck for Group {{ selected_group_name }} {% endblock %}</span>
+{% endblock %}
+
+{% block content %}
+<form method="post" class="form">
+  <input type="text" class="id" id="id" value={{ selected_group_id }} disabled>
+  <input name="name" id="name" placeholder="Name" required>
+  <div class="checkbox">
+    <input type="checkbox" name="public" id="public" value="public">
+    <label for="public">public</label>
+  </div>
+  <input type="submit" value="Save">
+</form>
+{% endblock %}

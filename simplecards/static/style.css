@@ -140,6 +140,7 @@ header {
     border-radius: 3px;
     padding: 5px;
     margin-bottom: 10px;
+    min-height: var(--row-height-medium);
 }
 
 .add * {
@@ -147,7 +148,7 @@ header {
     padding: 0;
 }
 
-.group, .deck {
+.group, .deck, .card {
     background-color: var(--background);
     box-shadow: 0px 0px 3px 3px var(--shadow);
     border-radius: 3px;
@@ -173,11 +174,11 @@ header {
     text-align: right;
 }
 
-.group-list, .deck-list {
+.group-list, .deck-list, .card-list {
     height: auto;
 }
 
-.group p, .deck p {
+.group p, .deck p, .card p {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -208,12 +209,12 @@ header {
         grid-template-columns: auto;
     }
 
-    .group, .deck {
+    .group, .deck, .card {
         flex-direction: row;
         justify-content: space-between;
     }
 
-    .group p, .deck p {
+    .group p, .deck p, .card p {
         width: auto;
     }
 

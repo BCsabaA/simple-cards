@@ -60,6 +60,13 @@ def index():
         (str(selected_group_id), )
     ).fetchall()
 
+    cards = db.execute(
+        'SELECT *'
+        ' FROM card'
+        ' WHERE public=1 and deck_id=(?)',
+        (str(selected_deck_id), )
+    ).fetchall()
+
     print('Index group:',selected_group_name)
     print('Index deck:',selected_deck_name)
     
@@ -69,6 +76,7 @@ def index():
                            selected_group_owner_id=selected_group_owner_id, 
                            selected_deck_id = selected_deck_id, selected_deck_name=selected_deck_name, 
                            decks=decks, 
+                           cards=cards
                            )
 
 @bp.route('/owned')
@@ -165,6 +173,70 @@ def create_deck():
 
     return render_template('simplecards/create-deck.html', selected_group_id=selected_group_id, selected_group_name=selected_group_name)
 
+@bp.route('/create-card', methods=('GET', 'POST'))
+@login_required
+def create_card():
+    db = get_db()
+    selection = db.execute(
+        'SELECT *'
+        ' FROM user_selections'
+        ' WHERE user_id = ?',
+        (str(session.get('user_id')), )
+    ).fetchone()
+    selected_group_id = selection['selected_group_id']
+    selected_deck_id = selection['selected_deck_id']
+
+    group = db.execute(
+        'SELECT *'
+        ' FROM groups'
+        ' WHERE id = ?',
+        (str(selected_group_id), )
+    ).fetchone()
+    selected_group_name = group['name']
+
+    deck = db.execute(
+        'SELECT *'
+        ' FROM deck'
+        ' WHERE id = ?',
+        (str(selected_deck_id), )
+    ).fetchone()
+    selected_deck_name = deck['name']
+
+    print('create_deck group id:',selected_group_id)
+    print('create_deck group name:',selected_group_name)
+    print('create_deck deck id:',selected_deck_id)
+    print('create_deck deck name:',selected_deck_name)
+
+    if request.method == 'POST':
+
+
+        question = request.form['question']
+        answer = request.form['answer']
+        public = 1 if request.form['public'] else 0
+        error = None
+        deleted = 0
+
+        if not question or not answer:
+            error = 'Question and answer both are required.'
+
+        if error is not None:
+            flash(error)
+        else:
+            db.execute(
+                'INSERT INTO card (deck_id, question, answer, public, deleted)'
+                ' VALUES (?, ?, ?, ?, ?)',
+                (selected_deck_id, question, answer, public, deleted)
+            )
+            db.commit()
+            return redirect(url_for('simplecards.index'))
+
+    return render_template(
+        'simplecards/create-card.html', 
+        selected_group_id=selected_group_id, 
+        selected_group_name=selected_group_name,
+        selected_deck_id=selected_deck_id,
+        selected_deck_name=selected_deck_name
+        )
 
 def get_post(id, check_author=True):
     post = get_db().execute(

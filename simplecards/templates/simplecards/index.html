@@ -49,8 +49,10 @@
   <div id="decks" class="list">
     <div id="add-deck" class="add">
       <p>{%if selected_group_name%}{{selected_group_name}} d{%else%}D{%endif%}ecks</p>
+      {% if g.user['id'] == selected_group_owner_id %}
       <a href="{{ url_for('simplecards.create_deck') }}"><img src="{{ url_for('static', filename='add.svg') }}"
           alt="add"></a>
+      {%endif%}
     </div>
     <div class="deck-list">
       {%if not decks%}
@@ -62,11 +64,11 @@
         <p>{{ deck['name'] }}</p>
         {% if g.user['id'] == selected_group_owner_id %}
         <div class="options">
-          <a class="action" href="{{ url_for('simplecards.update', id=selected_deck_id) }}">
+          <a class="action" href="{{ url_for('simplecards.update', id=deck['id']) }}">
             <img src="{{ url_for('static', filename='edit.svg') }}"
           alt="add">
           </a>
-          <a class="action" href="{{ url_for('simplecards.delete', id=selected_deck_id) }}">
+          <a class="action" href="{{ url_for('simplecards.delete', id=deck['id']) }}">
             <img src="{{ url_for('static', filename='delete.svg') }}"
           alt="add">
           </a>
@@ -81,11 +83,35 @@
   <div id="cards" class="list">
     <div id="add-card" class="add">
       <p>{%if selected_deck_name%}{{selected_deck_name}} c{%else%}C{%endif%}ards</p>
-      <a href="{{ url_for('simplecards.create_group') }}"><img src="{{ url_for('static', filename='add.svg') }}"
+      {% if g.user['id'] == selected_group_owner_id %}
+      <a href="{{ url_for('simplecards.create_card') }}"><img src="{{ url_for('static', filename='add.svg') }}"
           alt="add"></a>
+      {%endif%}
     </div>
     <div class="card-list">
-      <p>no decks yet...</p>
+      {%if not cards%}
+      <p>no cards yet...</p>
+      {%else%}
+      {% for card in cards %}
+      <div class="card">
+        <p>#{{ card['id'] }}</p>
+        <p>{{ card['question'] }}</p>
+        <p>{{ card['answer'] }}</p>
+        {% if g.user['id'] == selected_group_owner_id %}
+        <div class="options">
+          <a class="action" href="{{ url_for('simplecards.update', id=card['id']) }}">
+            <img src="{{ url_for('static', filename='edit.svg') }}"
+          alt="add">
+          </a>
+          <a class="action" href="{{ url_for('simplecards.delete', id=card['id']) }}">
+            <img src="{{ url_for('static', filename='delete.svg') }}"
+          alt="add">
+          </a>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {%endif%}
     </div>
   </div>
 </div>

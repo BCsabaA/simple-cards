@@ -50,7 +50,10 @@ def index():
         ' WHERE id = ?',
         (str(selected_deck_id), )
     ).fetchone()
-    selected_deck_name = deck['name']
+    if not deck:
+        selected_deck_name = ""
+    else:
+        selected_deck_name = deck['name']
 
     decks = db.execute(
         'SELECT *'
@@ -240,6 +243,53 @@ def create_card():
         selected_deck_name=selected_deck_name
         )
 
+@bp.route('/<int:id>/select-group', methods=('GET', 'POST'))
+@login_required
+def select_group(id):
+    db = get_db()
+    user_id = str(session.get('user_id'))
+    print('select-group user id:', user_id)
+    print('select-group group id:', id)
+    first_deck_id = db.execute(
+        'SELECT id FROM deck'
+        ' WHERE group_id=?;',
+        (id, )
+    ).fetchone()
+
+    if not first_deck_id:
+        first_deck_id = 0
+    else:
+        first_deck_id = first_deck_id['id']
+
+    db.execute(
+        'UPDATE user_selections'
+        ' SET'
+        ' selected_group_id=?,'
+        ' selected_deck_id=?'
+        ' WHERE user_id=?;',
+        (id, first_deck_id, user_id, )
+    )
+    db.commit()
+    return redirect(url_for('simplecards.index'))
+
+@bp.route('/<int:id>/select-deck', methods=('GET', 'POST'))
+@login_required
+def select_deck(id):
+    db = get_db()
+    user_id = str(session.get('user_id'))
+    print('select-deck user id:', user_id)
+    print('select-deck deck id:', id)
+  
+
+    db.execute(
+        'UPDATE user_selections'
+        ' SET'
+        ' selected_deck_id=?'
+        ' WHERE user_id=?;',
+        (id, user_id, )
+    )
+    db.commit()
+    return redirect(url_for('simplecards.index'))
 
 
 def get_post(id, check_author=True):

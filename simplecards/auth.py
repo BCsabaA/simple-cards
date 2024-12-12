@@ -67,6 +67,19 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
+            print("in auth/login before selection insert")
+            db.execute(
+                'INSERT INTO user_selections'
+                ' (user_id, selected_group_id, selected_deck_id)'
+                ' VALUES'
+                ' (?, 1, 1)'
+                ' ON CONFLICT(user_id) DO UPDATE SET'
+                ' selected_group_id=1,'
+                ' selected_deck_id=1;',
+                (user['id'], )
+            )
+            db.commit()
+            print("in auth/login after selection insert")
             return redirect(url_for('index'))
 
         flash(error)

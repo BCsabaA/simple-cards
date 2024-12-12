@@ -196,6 +196,12 @@ header {
     justify-content: space-between;
 }
 
+.auth-options {
+    display: flex;
+    justify-content: flex-end;
+    width: auto;
+}
+
 @media (max-width: 640px) {
     
     nav, header, .flash{

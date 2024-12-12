@@ -69,6 +69,8 @@ def index():
 
     print('Index group:',selected_group_name)
     print('Index deck:',selected_deck_name)
+
+    print(group['name'] for group in groups)
     
     return render_template('simplecards/index.html', 
                            groups=groups, 

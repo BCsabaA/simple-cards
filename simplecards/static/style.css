@@ -148,6 +148,12 @@ header {
     padding: 0;
 }
 
+.list.selection {
+    margin: 0;
+    padding: 0;
+
+}
+
 .group, .deck, .card {
     background-color: var(--background);
     box-shadow: 0px 0px 3px 3px var(--shadow);
@@ -187,7 +193,7 @@ header {
 .options {
     width: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
 }
 
 @media (max-width: 640px) {

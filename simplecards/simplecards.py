@@ -238,6 +238,8 @@ def create_card():
         selected_deck_name=selected_deck_name
         )
 
+
+
 def get_post(id, check_author=True):
     post = get_db().execute(
         'SELECT p.id, title, body, created, author_id, username'

@@ -135,6 +135,47 @@ def create_group():
 
     return render_template('simplecards/create-group.html')
 
+@bp.route('/<int:id>/update-group', methods=('GET', 'POST'))
+@login_required
+def update_group(id):
+    db = get_db()
+    if request.method == 'POST':
+        name = request.form['name']
+        public = 1 if request.form['public'] else 0
+        print(request.form['public'])
+        print(public)
+        error = None
+        deleted = 0
+
+        if not name:
+            error = 'Name is required.'
+
+        if error is not None:
+            flash(error)
+        else:
+            db.execute(
+                'UPDATE groups SET'
+                ' name=?,'
+                ' public=?'
+                ' WHERE id=?',
+                (name, public, id)
+            )
+            db.commit()
+            return redirect(url_for('simplecards.index'))
+
+    group = db.execute(
+        'SELECT * FROM groups'
+        ' WHERE id=?;',
+        (id, )
+        ).fetchone()
+    group_name = group['name']
+    group_public = True if group['public']==1 else False
+
+    print('UPDATE GROUP NAME', group_name)
+    print('UPDATE GROUP PUBLIC', group_public)
+
+    return render_template('simplecards/update-group.html', name=group_name, public=group_public)
+
 @bp.route('/create-deck', methods=('GET', 'POST'))
 @login_required
 def create_deck():
@@ -243,8 +284,66 @@ def create_card():
         selected_deck_name=selected_deck_name
         )
 
-@bp.route('/<int:id>/select-group', methods=('GET', 'POST'))
+@bp.route('/<int:id>update-deck', methods=('GET', 'POST'))
 @login_required
+def update_deck(id):
+    db = get_db()
+
+    #TODO: EDIT TO UPDATE DECK INSTEAD GROUP
+    if request.method == 'POST':
+        name = request.form['name']
+        public = 1 if request.form['public'] else 0
+        print(request.form['public'])
+        print(public)
+        error = None
+        deleted = 0
+
+        if not name:
+            error = 'Name is required.'
+
+        if error is not None:
+            flash(error)
+        else:
+            db.execute(
+                'UPDATE deck SET'
+                ' name=?,'
+                ' public=?'
+                ' WHERE id=?',
+                (name, public, id)
+            )
+            db.commit()
+            return redirect(url_for('simplecards.index'))
+    #TODO END
+    
+    deck = db.execute(
+        'SELECT *, groups.name AS g_name, groups.id AS g_id'
+        ' FROM deck'
+        ' JOIN groups ON deck.group_id=groups.id'
+        ' WHERE deck.id=?;',
+        (id, )
+        ).fetchone()
+
+    deck_name = deck['name']
+    deck_public = deck['public']
+    group_name = deck['g_name']
+    
+
+    print('UPDATE DECK deck:', deck_name)
+    print('UPDATE DECK group:', group_name)
+
+    for key in deck.keys():
+        print(key)
+
+    return render_template(
+        'simplecards/update-deck.html',
+        deck_id=id,
+        deck_name=deck_name,
+        deck_public=deck_public,
+        group_name=group_name
+        )
+
+@bp.route('/<int:id>/select-group', methods=('GET', 'POST'))
+#@login_required
 def select_group(id):
     db = get_db()
     user_id = str(session.get('user_id'))
@@ -273,7 +372,7 @@ def select_group(id):
     return redirect(url_for('simplecards.index'))
 
 @bp.route('/<int:id>/select-deck', methods=('GET', 'POST'))
-@login_required
+#@login_required
 def select_deck(id):
     db = get_db()
     user_id = str(session.get('user_id'))

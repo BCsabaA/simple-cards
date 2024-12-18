@@ -36,7 +36,7 @@
           </a>
           {% if g.user['id'] == group['owner_id'] %}
           <div class="auth-options">
-            <a class="action" href="{{ url_for('simplecards.update', id=group['id']) }}">
+            <a class="action" href="{{ url_for('simplecards.update_group', id=group['id']) }}">
               <img src="{{ url_for('static', filename='edit.svg') }}" alt="add">
             </a>
             <a class="action" href="{{ url_for('simplecards.delete', id=group['id']) }}">
@@ -72,7 +72,7 @@
           </a>
           {% if g.user['id'] == selected_group_owner_id %}
           <div class="auth-options">
-            <a class="action" href="{{ url_for('simplecards.update', id=deck['id']) }}">
+            <a class="action" href="{{ url_for('simplecards.update_deck', id=deck['id']) }}">
               <img src="{{ url_for('static', filename='edit.svg') }}" alt="add">
             </a>
             <a class="action" href="{{ url_for('simplecards.delete', id=deck['id']) }}">
@@ -105,7 +105,7 @@
         <p>{{ card['question'] }}</p>
         <p>{{ card['answer'] }}</p>
         {% if g.user['id'] == selected_group_owner_id %}
-        <div class="options">
+        <div class="options auth-options">
           <a class="action" href="{{ url_for('simplecards.update', id=card['id']) }}">
             <img src="{{ url_for('static', filename='edit.svg') }}" alt="add">
           </a>

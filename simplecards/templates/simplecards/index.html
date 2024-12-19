@@ -70,6 +70,9 @@
           <a href="{{ url_for('simplecards.select_deck', id=deck['id']) }}">
             <img src="{{ url_for('static', filename='view.svg') }}" alt="view">
           </a>
+          <a href="{{ url_for('simplecards.select_deck', id=deck['id']) }}">
+            <img src="{{ url_for('static', filename='school.svg') }}" alt="view">
+          </a>
           {% if g.user['id'] == selected_group_owner_id %}
           <div class="auth-options">
             <a class="action" href="{{ url_for('simplecards.update_deck', id=deck['id']) }}">

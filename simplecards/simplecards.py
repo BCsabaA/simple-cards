@@ -219,7 +219,17 @@ def delete_card(id):
     print(f'Card with id {id} from table "card" is deleted')
     return redirect(url_for('simplecards.index'))
 
+@bp.route('/<int:id>/learn_deck')
+@login_required
+def learn_deck(id):
+    db = get_db()
 
+    cards = db.execute(
+        'SELECT * FROM card'
+        ' WHERE deck_id=?',
+        (id, )
+    ).fetchall()
+    return render_template('simplecards/learn.html', cards=cards)
 
 @bp.route('/create-deck', methods=('GET', 'POST'))
 @login_required

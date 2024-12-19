@@ -1,19 +1,17 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<span>{% block title %}New Card for Deck {{ selected_deck_name }} of Group {{ selected_group_name }} {% endblock %}</span>
+<span>{% block title %}Update Card for Deck {{ deck_name }} of Group {{ group_name }} {% endblock %}</span>
 {% endblock %}
 
 {% block content %}
 <form method="post" class="form">
-  <input type="text" class="id" id="group_id" value={{ selected_group_id }} disabled>
-  <input type="text" class="id" id="deck_id" value={{ selected_deck_id }} disabled>
-  <input name="question" id="question" placeholder="Question" required>
-  <input name="answer" id="answer" placeholder="Answer" required>
+  <input name="question" id="question" placeholder="Question" value="{{card_question}}" required>
+  <input name="answer" id="answer" placeholder="Answer" value="{{card_answer}}" required>
   <div class="checkbox">
-    <input type="checkbox" name="public" id="public" value="public">
+    <input type="checkbox" name="public" id="public" value="public" {%if card_public%}checked{%endif%}>
     <label for="public">public</label>
   </div>
-  <input type="submit" value="Save">
+  <input type="submit" value="Update">
 </form>
 {% endblock %}

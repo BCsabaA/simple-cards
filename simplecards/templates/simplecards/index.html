@@ -27,7 +27,7 @@
     <div id="group-list">
       {% for group in groups %}
       <div class="group {% if selected_group_id == group['id'] %} group-selected{% endif %}">
-        <p>ID: {{ group['id'] }}</p>
+        <!-- <p>ID: {{ group['id'] }}</p> -->
         <p>{{ group['name'] }}</p>
         <p class="about"><i>by {{ group['username'] }}</i></p>
         <div class="options">
@@ -39,7 +39,7 @@
             <a class="action" href="{{ url_for('simplecards.update_group', id=group['id']) }}">
               <img src="{{ url_for('static', filename='edit.svg') }}" alt="add">
             </a>
-            <a class="action" href="{{ url_for('simplecards.delete', id=group['id']) }}">
+            <a class="action" href="{{ url_for('simplecards.delete_group', id=group['id']) }}">
               <img src="{{ url_for('static', filename='delete.svg') }}" alt="add">
             </a>
           </div>
@@ -64,7 +64,7 @@
       {%else%}
       {% for deck in decks %}
       <div class="deck {% if selected_deck_id == deck['id'] %} deck-selected{% endif %}">
-        <p>#{{ deck['id'] }}</p>
+        <!-- <p>#{{ deck['id'] }}</p> -->
         <p>{{ deck['name'] }}</p>
         <div class="options">
           <a href="{{ url_for('simplecards.select_deck', id=deck['id']) }}">
@@ -75,7 +75,7 @@
             <a class="action" href="{{ url_for('simplecards.update_deck', id=deck['id']) }}">
               <img src="{{ url_for('static', filename='edit.svg') }}" alt="add">
             </a>
-            <a class="action" href="{{ url_for('simplecards.delete', id=deck['id']) }}">
+            <a class="action" href="{{ url_for('simplecards.delete_group', id=deck['id']) }}">
               <img src="{{ url_for('static', filename='delete.svg') }}" alt="add">
             </a>
           </div>
@@ -101,15 +101,15 @@
       {%else%}
       {% for card in cards %}
       <div class="card">
-        <p>#{{ card['id'] }}</p>
+        <!-- <p>#{{ card['id'] }}</p> -->
         <p>{{ card['question'] }}</p>
         <p>{{ card['answer'] }}</p>
         {% if g.user['id'] == selected_group_owner_id %}
-        <div class="options auth-options">
-          <a class="action" href="{{ url_for('simplecards.update', id=card['id']) }}">
+        <div class="auth-options">
+          <a class="action" href="{{ url_for('simplecards.update_card', id=card['id']) }}">
             <img src="{{ url_for('static', filename='edit.svg') }}" alt="add">
           </a>
-          <a class="action" href="{{ url_for('simplecards.delete', id=card['id']) }}">
+          <a class="action" href="{{ url_for('simplecards.delete_group', id=card['id']) }}">
             <img src="{{ url_for('static', filename='delete.svg') }}" alt="add">
           </a>
         </div>

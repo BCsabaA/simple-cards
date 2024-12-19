@@ -9,6 +9,7 @@ from simplecards.db import get_db
 bp = Blueprint('simplecards', __name__)
 
 @bp.route('/')
+@login_required
 def index():
     db = get_db()
     groups = db.execute(
@@ -176,6 +177,22 @@ def update_group(id):
 
     return render_template('simplecards/update-group.html', name=group_name, public=group_public)
 
+@bp.route('/<int:id>/delete-group')
+@login_required
+def delete_group(id):
+    db = get_db()
+    
+    db.execute(
+        'DELETE FROM groups'
+        ' WHERE id=?;',
+        (str(id), )
+    )
+    db.commit()
+    print(f'Object with id {id} from table "groups" is deleted')
+    return redirect(url_for('simplecards.index'))
+
+
+
 @bp.route('/create-deck', methods=('GET', 'POST'))
 @login_required
 def create_deck():
@@ -284,12 +301,11 @@ def create_card():
         selected_deck_name=selected_deck_name
         )
 
-@bp.route('/<int:id>update-deck', methods=('GET', 'POST'))
+@bp.route('/<int:id>/update-deck', methods=('GET', 'POST'))
 @login_required
 def update_deck(id):
     db = get_db()
 
-    #TODO: EDIT TO UPDATE DECK INSTEAD GROUP
     if request.method == 'POST':
         name = request.form['name']
         public = 1 if request.form['public'] else 0
@@ -313,7 +329,6 @@ def update_deck(id):
             )
             db.commit()
             return redirect(url_for('simplecards.index'))
-    #TODO END
     
     deck = db.execute(
         'SELECT *, groups.name AS g_name, groups.id AS g_id'
@@ -339,6 +354,77 @@ def update_deck(id):
         deck_id=id,
         deck_name=deck_name,
         deck_public=deck_public,
+        group_name=group_name
+        )
+
+@bp.route('/<int:id>/update-card', methods=('GET', 'POST'))
+@login_required
+def update_card(id):
+    db = get_db()
+
+    if request.method == 'POST':
+        question = request.form['question']
+        answer = request.form['answer']
+        public = 1 if request.form['public'] else 0
+        print(request.form['public'])
+        print(public)
+        error = None
+        deleted = 0
+
+        if not question or not answer:
+            error = 'Question and answer both are are required.'
+
+        if error is not None:
+            flash(error)
+        else:
+            db.execute(
+                'UPDATE card SET'
+                ' question=?,'
+                ' answer=?,'
+                ' public=?'
+                ' WHERE id=?',
+                (question, answer, public, id)
+            )
+            db.commit()
+            return redirect(url_for('simplecards.index'))
+    
+    card = db.execute(
+        'SELECT *, deck.name AS d_name, deck.id AS d_id'
+        ' FROM card'
+        ' JOIN deck ON card.deck_id=deck.id'
+        ' WHERE card.id=?;',
+        (id, )
+        ).fetchone()
+    
+    deck = db.execute(
+        'SELECT *, groups.name AS g_name, groups.id AS g_id'
+        ' FROM deck'
+        ' JOIN groups ON deck.group_id=groups.id'
+        ' WHERE deck.id=?;',
+        (card['deck_id'], )
+        ).fetchone()
+
+    card_question = card['question']
+    card_answer = card['answer']
+    card_public = card['public']
+    deck_name = card['d_name']
+    group_name = deck['g_name']
+    
+
+    print('UPDATE CARD question:', card_question)
+    print('UPDATE CARD answer:', card_answer)
+    print('UPDATE CARD deck:', deck_name)
+
+    for key in card.keys():
+        print(key)
+
+    return render_template(
+        'simplecards/update-card.html',
+        card_id=id,
+        card_question=card_question,
+        card_answer=card_answer,
+        card_public=card_public,
+        deck_name=deck_name,
         group_name=group_name
         )
 
@@ -387,58 +473,5 @@ def select_deck(id):
         ' WHERE user_id=?;',
         (id, user_id, )
     )
-    db.commit()
-    return redirect(url_for('simplecards.index'))
-
-
-def get_post(id, check_author=True):
-    post = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
-        (id,)
-    ).fetchone()
-
-    if post is None:
-        abort(404, f"Post id {id} doesn't exist.")
-
-    if check_author and post['author_id'] != g.user['id']:
-        abort(403)
-
-    return post
-
-@bp.route('/<int:id>/update', methods=('GET', 'POST'))
-@login_required
-def update(id):
-    post = get_post(id)
-
-    if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
-        error = None
-
-        if not title:
-            error = 'Title is required.'
-
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                'UPDATE post SET title = ?, body = ?'
-                ' WHERE id = ?',
-                (title, body, id)
-            )
-            db.commit()
-            return redirect(url_for('blog.index'))
-
-    return render_template('simplecards/update.html', post=post)
-
-@bp.route('/<int:id>/delete', methods=('POST',))
-@login_required
-def delete(id):
-    get_post(id)
-    db = get_db()
-    db.execute('DELETE FROM post WHERE id = ?', (id,))
     db.commit()
     return redirect(url_for('simplecards.index'))

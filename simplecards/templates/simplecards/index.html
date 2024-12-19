@@ -75,7 +75,7 @@
             <a class="action" href="{{ url_for('simplecards.update_deck', id=deck['id']) }}">
               <img src="{{ url_for('static', filename='edit.svg') }}" alt="add">
             </a>
-            <a class="action" href="{{ url_for('simplecards.delete_group', id=deck['id']) }}">
+            <a class="action" href="{{ url_for('simplecards.delete_deck', id=deck['id']) }}">
               <img src="{{ url_for('static', filename='delete.svg') }}" alt="add">
             </a>
           </div>
@@ -109,7 +109,7 @@
           <a class="action" href="{{ url_for('simplecards.update_card', id=card['id']) }}">
             <img src="{{ url_for('static', filename='edit.svg') }}" alt="add">
           </a>
-          <a class="action" href="{{ url_for('simplecards.delete_group', id=card['id']) }}">
+          <a class="action" href="{{ url_for('simplecards.delete_card', id=card['id']) }}">
             <img src="{{ url_for('static', filename='delete.svg') }}" alt="add">
           </a>
         </div>

@@ -188,7 +188,35 @@ def delete_group(id):
         (str(id), )
     )
     db.commit()
-    print(f'Object with id {id} from table "groups" is deleted')
+    print(f'Group with id {id} from table "groups" is deleted')
+    return redirect(url_for('simplecards.index'))
+
+@bp.route('/<int:id>/delete-deck')
+@login_required
+def delete_deck(id):
+    db = get_db()
+    
+    db.execute(
+        'DELETE FROM deck'
+        ' WHERE id=?;',
+        (str(id), )
+    )
+    db.commit()
+    print(f'Deck with id {id} from table "deck" is deleted')
+    return redirect(url_for('simplecards.index'))
+
+@bp.route('/<int:id>/delete-card')
+@login_required
+def delete_card(id):
+    db = get_db()
+    
+    db.execute(
+        'DELETE FROM card'
+        ' WHERE id=?;',
+        (str(id), )
+    )
+    db.commit()
+    print(f'Card with id {id} from table "card" is deleted')
     return redirect(url_for('simplecards.index'))
 
 

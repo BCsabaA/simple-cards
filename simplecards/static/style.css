@@ -8,6 +8,19 @@
     --text: #495057;
     --text-error: #FCB9B2;
     --text-hover: #212529;
+    
+    --group-text-color: #03045E;
+    --group-bg-color: #90E0EF;
+    --group-shadow-color: #0077B6;
+
+    --deck-text-color: #6247AA;
+    --deck-bg-color: #E2CFEA;
+    --deck-shadow-color: #A06CD5;
+
+    --card-text-color: #31572C;
+    --card-bg-color: #ECF39E;
+    --card-shadow-color: #90A955;
+    
 }
 
 * {
@@ -128,7 +141,7 @@ header {
 }
 
 .container * {
-    color: var(--text);
+    /*color: var(--text);*/
 }
 
 .add {
@@ -148,6 +161,12 @@ header {
     padding: 0;
 }
 
+.list.selection {
+    margin: 0;
+    padding: 0;
+
+}
+
 .group, .deck, .card {
     background-color: var(--background);
     box-shadow: 0px 0px 3px 3px var(--shadow);
@@ -161,12 +180,27 @@ header {
     align-items: center;
 }
 
+.group, #add-group {
+    color: var(--group-text-color);
+    box-shadow: 0px 0px 2px 2px var(--group-shadow-color);
+}
+
+.deck, #add-deck {
+    color: var(--deck-text-color);
+    box-shadow: 0px 0px 2px 2px var(--deck-shadow-color);
+}
+
+.card, #add-card {
+    color: var(--card-text-color);
+    box-shadow: 0px 0px 2px 2px var(--card-shadow-color);
+}
+
 .group-selected {
-    background-color: aqua;
+    background-color: var(--group-bg-color);
 }
 
 .deck-selected {
-    background-color: bisque;
+    background-color: var(--deck-bg-color);;
 }
 
 .about {
@@ -187,7 +221,13 @@ header {
 .options {
     width: 100%;
     display: flex;
+    justify-content: space-between;
+}
+
+.auth-options {
+    display: flex;
     justify-content: flex-end;
+    width: 100%;
 }
 
 @media (max-width: 640px) {

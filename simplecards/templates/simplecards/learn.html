@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>LEARN</h1>
+{% endblock %}
+
+{% block content %}
+<div class="container learn-container">
+  
+  <div id="question">
+    {{ cards[0].question }}
+  </div>
+
+  <div id="answer">
+    {{ cards[0].answer }}
+  </div>
+
+</div>
+{% endblock %}

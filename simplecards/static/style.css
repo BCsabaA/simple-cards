@@ -1,6 +1,7 @@
 :root {
     --row-height: 50px;
     --row-height-medium: 30px;
+
     --background: #E9ECEF;
     --background-error: #8C2F39;
     --shadow: #CED4DA;
@@ -228,6 +229,10 @@ header {
     display: flex;
     justify-content: flex-end;
     width: 100%;
+}
+
+.learn-container {
+    min-height: calc(100vh - (var(--row-height) + 20px) * 2 - 10px);
 }
 
 @media (max-width: 640px) {

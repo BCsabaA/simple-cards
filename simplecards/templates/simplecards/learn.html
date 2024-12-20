@@ -6,13 +6,27 @@
 
 {% block content %}
 <div class="container learn-container">
-  
-  <div id="question">
-    {{ cards[0].question }}
-  </div>
 
-  <div id="answer">
-    {{ cards[0].answer }}
+  <div id="learn-panel">
+
+    {% for card in cards %}
+
+    <div class="learn-box" id="number">
+      {{ loop.index }}
+    </div>
+
+    <div class="learn-box" id="question">
+      {{ card.question }}
+    </div>
+
+    <div class="learn-box" id="answer">
+      {{ card.answer }}
+    </div>
+
+    <div class="learn-bg"></div>
+    
+    {% endfor %}
+
   </div>
 
 </div>

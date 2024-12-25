@@ -115,7 +115,9 @@ def statistics():
 def create_group():
     if request.method == 'POST':
         name = request.form['name']
-        public = 1 if request.form['public'] else 0
+        public = 0
+        if 'public' in request.form.keys():
+            public = 1
         error = None
         deleted = 0
 
@@ -229,7 +231,8 @@ def learn_deck(id):
         ' WHERE deck_id=?',
         (id, )
     ).fetchall()
-    return render_template('simplecards/learn.html', cards=cards)
+    card_list = [dict(card) for card in cards]
+    return render_template('simplecards/learn.html', cards=card_list)
 
 @bp.route('/create-deck', methods=('GET', 'POST'))
 @login_required

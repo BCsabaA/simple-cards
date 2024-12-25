@@ -104,16 +104,19 @@ header {
     width: 20vw;
 }
 
-.form input, .form div {
+.form input, .form div, .form textarea {
     box-sizing: border-box;
     width: 100%;
     padding: 0 0.5rem;
     margin: 0 0 10px 0;
     margin-bottom: 10px;
-    height: 2rem;
     border-radius: 5px;
     border: 1px solid black;
     background-color: var(--background);
+}
+
+.form input, .form div {
+    height: 2rem;
 }
 
 .checkbox {
@@ -234,45 +237,54 @@ header {
 .learn-container {
     min-height: calc(100vh - (var(--row-height) + 20px) * 2 - 10px);
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+#learn-button {
+    width: fit-content;
 }
 
 #learn-panel {
     box-sizing: border-box;
     color: var(--deck-text-color);
-    box-shadow: 0px 0px 2px 2px var(--deck-shadow-color);
+    /*box-shadow: 0px 0px 2px 2px var(--deck-shadow-color);*/
     border-radius: 2px;
-    margin: 60px;
+    margin: 30px 60px;
     width: 300px;
-    height: 500px;
-    display: grid;
-    grid-template-columns: auto;
-    row-gap: 20px;
-    position: relative;
+    /* height: auto; */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    /* grid-template-columns: auto; */
+    /* row-gap: 20px; */
 }
 
 .learn-box {
-    border: 1px solid black;
+    /* border: 1px solid black; */
     border-radius: 3px;
+    padding: 5px;
+    width: auto;
+    /* height: fit-content; */
 }
 
-#number {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-}
+/* #number { */
+/*     position: absolute; */
+/*     top: 20px; */
+/*     left: 20px; */
+/* } */
 
-#question {
-    position: absolute;
-    top: 60px;
-    left: 20px;
-}
+/* #question { */
+/*     position: absolute; */
+/*     top: 60px; */
+/*     left: 20px; */
+/* } */
 
-#answer {
-    position: absolute;
-    top: 100px;
-    left: 20px;
-}
+/* #answer { */
+/*     position: absolute; */
+/*     top: 100px; */
+/*     left: 20px; */
+/* } */
 
 .learn-bg {
     width: 100%;

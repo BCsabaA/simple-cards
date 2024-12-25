@@ -1,33 +1,66 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>LEARN</h1>
+
 {% endblock %}
 
 {% block content %}
-<div class="container learn-container">
 
+<div class="container learn-container">
+  <input id="learn-button" type="button" onclick="learn_func()" value="LEARN"/>
   <div id="learn-panel">
 
-    {% for card in cards %}
+    <!-- <div class="learn-box" id="debug"> -->
+    <!--   debug -->
+    <!-- </div> -->
 
     <div class="learn-box" id="number">
-      {{ loop.index }}
+      card
     </div>
 
     <div class="learn-box" id="question">
-      {{ card.question }}
+      question
     </div>
 
     <div class="learn-box" id="answer">
-      {{ card.answer }}
+      answer
     </div>
 
-    <div class="learn-bg"></div>
-    
-    {% endfor %}
+    <!-- <div class="learn-bg"></div> -->
 
   </div>
 
 </div>
+<script>
+  function sleep(ms) {
+      // debug = document.getElementById("debug");
+      // debug.textContent = "in sleep";
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+  async function learn_func() {
+      // alert("in func learn");
+      
+      // document.body.style.backgroundColor = "red";
+      // debug = document.getElementById("debug");
+      number = document.getElementById("number");
+      question = document.getElementById("question");
+      answer = document.getElementById("answer");
+
+      const cards = {{cards | tojson}}
+
+      //debug.textContent = typeof cards;
+
+      for (const [i, card] of cards.entries()) {
+
+	  number.textContent = "Card " + (i+1) + ".";
+	  question.textContent = card['question'];
+	  answer.textContent = "";
+	  await sleep(2000);
+	  answer.textContent = card['answer'];
+	  await sleep(2000);
+      }
+      
+      // document.body.style.backgroundColor = "blue";
+  }
+</script>
 {% endblock %}

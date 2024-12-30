@@ -20,10 +20,20 @@
     </div>
   </nav>
   <header>
+    {% if g.user %}
+<a class="action {%if view_name=='public'%}active-view{%endif%}" href="{{ url_for('simplecards.index', lookup='public') }}">Public</a>
+<a class="action {%if view_name=='owned'%}active-view{%endif%}" href="{{ url_for('simplecards.index', lookup='owned') }}">Owned</a>
+<a class="action {%if view_name=='import'%}active-view{%endif%}" href="{{ url_for('simplecards.import_csv') }}">Import</a>
+<a class="action {%if view_name=='export'%}active-view{%endif%}" href="{{ url_for('simplecards.export') }}">Export</a>
+<a class="action {%if view_name=='settings'%}active-view{%endif%}" href="{{ url_for('simplecards.settings') }}">Settings</a>
+<a class="action {%if view_name=='statistics'%}active-view{%endif%}" href="{{ url_for('simplecards.statistics') }}">Statistics</a>
+{% else %}
+<a class="action" href="{{ url_for('simplecards.index') }}">Public</a>
+{% endif %}
+
     {% block header %}{% endblock %}
   </header>
   <section class="content">
-    
     {% for message in get_flashed_messages() %}
       <div class="flash">{{ message }}</div>
     {% endfor %}

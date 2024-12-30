@@ -1,1 +1,13 @@
-Import
+{% extends 'base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<form action="/import" method="POST" enctype="multipart/form-data">
+    <label for="file">Choose CSV File:</label>
+    <input type="file" id="file" name="file" accept=".csv" required>
+    <button type="submit">Upload and Import</button>
+</form>
+{% endblock content %}
+

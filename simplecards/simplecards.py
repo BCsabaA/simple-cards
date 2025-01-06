@@ -1,23 +1,38 @@
 from flask import (
-    Blueprint, flash, g, session, redirect, render_template, request, url_for
+    Blueprint, flash, g, session, redirect, render_template, request, url_for, jsonify, Response
 )
 from werkzeug.exceptions import abort
+from werkzeug.utils import secure_filename
 
 from simplecards.auth import login_required
 from simplecards.db import get_db
+
+import csv
+import io
+import logging
 
 bp = Blueprint('simplecards', __name__)
 
 @bp.route('/')
 @login_required
 def index():
+    lookup = request.args.get('lookup')
     db = get_db()
-    groups = db.execute(
-        'SELECT g.id, owner_id, name, username'
-        ' FROM groups g JOIN user u ON g.owner_id = u.id'
-        ' WHERE g.public=1'
-        ' ORDER BY name'
-    ).fetchall()
+    if lookup == 'public':
+        groups = db.execute(
+            'SELECT g.id, owner_id, name, username'
+            ' FROM groups g JOIN user u ON g.owner_id = u.id'
+            ' WHERE g.public=1'
+            ' ORDER BY name'
+        ).fetchall()
+    else:
+        groups = db.execute(
+            'SELECT g.id, owner_id, name, username'
+            ' FROM groups g JOIN user u ON g.owner_id = u.id'
+            ' WHERE g.owner_id=?'
+            ' ORDER BY name',
+            (str(session.get('user_id')), )
+        ).fetchall()
 
     selected_group_id = 1
     selected_deck_id = 1
@@ -29,7 +44,11 @@ def index():
         ' WHERE user_id = ?',
         (str(session.get('user_id')), )
     ).fetchone()
-    if not selection:
+
+    if len(groups)==0:
+        selected_group_id = None
+        selected_deck_id = None
+    elif not selection:
         selected_group_id = 1
         selected_deck_id = 1
     else:
@@ -42,8 +61,12 @@ def index():
         ' WHERE id = ?',
         (str(selected_group_id), )
     ).fetchone()
-    selected_group_name = group['name']
-    selected_group_owner_id = group['owner_id']
+    if not group:
+        selected_group_name = ''
+        selected_group_owner_id = None
+    else:
+        selected_group_name = group['name']
+        selected_group_owner_id = group['owner_id']
 
     deck = db.execute(
         'SELECT *'
@@ -71,6 +94,9 @@ def index():
         (str(selected_deck_id), )
     ).fetchall()
 
+    for i, card in enumerate(cards):
+        print(i, card['answer'])
+
     print('Index group:',selected_group_name)
     print('Index deck:',selected_deck_name)
 
@@ -78,44 +104,162 @@ def index():
     
     return render_template('simplecards/index.html', 
                            groups=groups, 
-                           selected_group_id = selected_group_id, selected_group_name=selected_group_name,
+                           selected_group_id = selected_group_id,
+                           selected_group_name=selected_group_name,
                            selected_group_owner_id=selected_group_owner_id, 
-                           selected_deck_id = selected_deck_id, selected_deck_name=selected_deck_name, 
+                           selected_deck_id = selected_deck_id,
+                           selected_deck_name=selected_deck_name, 
                            decks=decks, 
-                           cards=cards
+                           cards=cards,
+                           view_name=lookup
                            )
 
-@bp.route('/owned')
-@login_required
-def owned():
-    return render_template('simplecards/owned.html')
+# @bp.route('/owned')
+# @login_required
+# def owned():
+#     return render_template('simplecards/owned.html')
 
-@bp.route('/import')
+@bp.route('/import', methods=['GET', 'POST'])
 @login_required
 def import_csv():
-    return render_template('simplecards/import.html')
+    if request.method == 'POST':
+        # Check if the file is in the request
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        
+        file = request.files['file']
+        
+        # Check if a file was selected
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        
+        if file and file.filename.endswith('.csv'):
+            filename = secure_filename(file.filename)  # Sanitize filename
+            
+            try:
+                # Decode the uploaded file to a text stream
+                stream = io.TextIOWrapper(file.stream, encoding='utf-8')
+                csv_reader = csv.reader(stream)
+                header = next(csv_reader)  # Read the header row
+
+                # Verify correct CSV format
+                if header != ["question", "answer", "deck_id", "public"]:
+                    flash('Invalid CSV format. Please check the headers.')
+                    return redirect(request.url)
+                
+                db = get_db()
+                for row in csv_reader:
+                    # Ensure the row has the correct number of fields
+                    if len(row) != 4:
+                        flash(f"Invalid row: {row}")
+                        continue
+                    
+                    question, answer, deck_id, public = row
+                    answer = answer.replace('\\n', '\n')
+                    
+                    # Insert the row into the database
+                    db.execute(
+                        "INSERT INTO card (question, answer, deck_id, public) VALUES (?, ?, ?, ?)",
+                        (question, answer, int(deck_id), int(public))
+                    )
+                db.commit()
+                flash('Cards imported successfully!')
+            except Exception as e:
+                flash(f"Error processing file: {e}")
+                return redirect(request.url)
+            
+            return redirect(url_for('index', lookup='owned'))  # Redirect to home or another route
+
+
+    
+    return render_template('simplecards/import.html', view_name='import')
 
 @bp.route('/export')
 @login_required
 def export():
-    return render_template('simplecards/export.html')
+    try:
+        db = get_db()
+        # Query data from the database
+        rows = db.execute("SELECT question, answer, deck_id, public FROM card").fetchall()
+
+        # Create CSV data in-memory
+        def generate_csv():
+            
+            output = csv.StringIO()
+            writer = csv.writer(output, quoting=csv.QUOTE_ALL)
+            writer.writerow(["question", "answer", "deck_id", "public"])  # Write header
+            for row in rows:
+                logging.debug(f"Exported row: {row}")
+                writer.writerow(
+                    [row['question'],
+                     row['answer'].replace('\n','\\n'),
+                     row['deck_id'],
+                     row['public']])
+                yield output.getvalue()
+                output.seek(0)
+                output.truncate(0)
+
+        # Send the CSV as a response
+        return Response(
+    generate_csv(),
+    mimetype='text/csv',
+    headers={"Content-Disposition": "attachment; filename=exported_cards.csv"}
+)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
+    return render_template('simplecards/export.html', view_name='export')
 
 @bp.route('/settings')
 @login_required
 def settings():
-    return render_template('simplecards/settings.html')
+    return render_template('simplecards/settings.html', view_name='settings')
 
 @bp.route('/statistics')
 @login_required
 def statistics():
-    return render_template('simplecards/statistics.html')
+    db = get_db()
+    data = db.execute(
+        'SELECT learn_time, learned_cards FROM user'
+        ' WHERE id=?;',
+        (str(session.get('user_id')), )
+    ).fetchone()
+    learn_time = data['learn_time']/1000
+    learned_cards = data['learned_cards']
+    return render_template(
+        'simplecards/statistics.html',
+        view_name='statistics',
+        learn_time=learn_time,
+        learned_cards=learned_cards,
+    )
+
+@bp.route('/delete-learn-data/', methods=('POST',))
+@login_required
+def delete_learn_data():
+    db = get_db()
+    db.execute(
+        'UPDATE user SET'
+        ' learn_time=0,'
+        ' learned_cards=0'
+        ' where id=?;',
+        (str(session.get('user_id')), )
+    )
+    db.commit()
+    return redirect(url_for('simplecards.statistics'))
+
+          
 
 @bp.route('/create-group', methods=('GET', 'POST'))
 @login_required
 def create_group():
     if request.method == 'POST':
         name = request.form['name']
-        public = 1 if request.form['public'] else 0
+        public = 0
+        if 'public' in request.form.keys():
+            public = 1
         error = None
         deleted = 0
 
@@ -142,9 +286,9 @@ def update_group(id):
     db = get_db()
     if request.method == 'POST':
         name = request.form['name']
-        public = 1 if request.form['public'] else 0
-        print(request.form['public'])
-        print(public)
+        public = 0
+        if 'public' in request.form.keys():
+            public = 1
         error = None
         deleted = 0
 
@@ -171,9 +315,6 @@ def update_group(id):
         ).fetchone()
     group_name = group['name']
     group_public = True if group['public']==1 else False
-
-    print('UPDATE GROUP NAME', group_name)
-    print('UPDATE GROUP PUBLIC', group_public)
 
     return render_template('simplecards/update-group.html', name=group_name, public=group_public)
 
@@ -229,7 +370,37 @@ def learn_deck(id):
         ' WHERE deck_id=?',
         (id, )
     ).fetchall()
-    return render_template('simplecards/learn.html', cards=cards)
+    card_list = [dict(card) for card in cards]
+    return render_template('simplecards/learn.html', cards=card_list)
+
+@bp.route('/save-learn', methods=('POST',))
+@login_required
+def save_learn():
+    print('in save_learn')
+    print('learn time:', request.form['learn_time'])
+    print('learned cards:', request.form['learned_cards'])
+    db = get_db()
+    old_data = db.execute(
+        'SELECT learn_time, learned_cards'
+        ' FROM user'
+        ' WHERE id=?;',
+        (str(session.get('user_id')), )
+    ).fetchone()
+    print('old learn time:', old_data['learn_time'])
+    print('old learned cards:', old_data['learned_cards'])
+    new_learn_time = old_data['learn_time'] + int(request.form['learn_time'])
+    new_learned_cards = old_data['learned_cards'] + int(request.form['learned_cards'])
+    print('new learn time:', new_learn_time)
+    print('new learned cards:', new_learned_cards)
+    db.execute(
+        'UPDATE user SET'
+        ' learn_time=?,'
+        ' learned_cards=?'
+        ' where id=?;',
+        (new_learn_time, new_learned_cards, str(session.get('user_id')))
+    )
+    db.commit()
+    return request.url
 
 @bp.route('/create-deck', methods=('GET', 'POST'))
 @login_required
@@ -254,7 +425,9 @@ def create_deck():
 
     if request.method == 'POST':
         name = request.form['name']
-        public = 1 if request.form['public'] else 0
+        public = 0
+        if 'public' in request.form.keys():
+            public = 1
         error = None
         deleted = 0
 
@@ -303,17 +476,13 @@ def create_card():
     ).fetchone()
     selected_deck_name = deck['name']
 
-    print('create_deck group id:',selected_group_id)
-    print('create_deck group name:',selected_group_name)
-    print('create_deck deck id:',selected_deck_id)
-    print('create_deck deck name:',selected_deck_name)
-
     if request.method == 'POST':
-
 
         question = request.form['question']
         answer = request.form['answer']
-        public = 1 if request.form['public'] else 0
+        public = 0
+        if 'public' in request.form.keys():
+            public = 1
         error = None
         deleted = 0
 
@@ -346,9 +515,9 @@ def update_deck(id):
 
     if request.method == 'POST':
         name = request.form['name']
-        public = 1 if request.form['public'] else 0
-        print(request.form['public'])
-        print(public)
+        public = 0
+        if 'public' in request.form.keys():
+            public = 1
         error = None
         deleted = 0
 
@@ -403,9 +572,9 @@ def update_card(id):
     if request.method == 'POST':
         question = request.form['question']
         answer = request.form['answer']
-        public = 1 if request.form['public'] else 0
-        print(request.form['public'])
-        print(public)
+        public = 0
+        if 'public' in request.form.keys():
+            public = 1
         error = None
         deleted = 0
 
@@ -447,12 +616,11 @@ def update_card(id):
     card_public = card['public']
     deck_name = card['d_name']
     group_name = deck['g_name']
+
+    print('UPDATE CARD', 'card_answer:', card_answer)
+
+    card_answer = card_answer.replace('\n','\n')
     
-
-    print('UPDATE CARD question:', card_question)
-    print('UPDATE CARD answer:', card_answer)
-    print('UPDATE CARD deck:', deck_name)
-
     for key in card.keys():
         print(key)
 
@@ -469,6 +637,7 @@ def update_card(id):
 @bp.route('/<int:id>/select-group', methods=('GET', 'POST'))
 #@login_required
 def select_group(id):
+    lookup = request.args.get('lookup')
     db = get_db()
     user_id = str(session.get('user_id'))
     print('select-group user id:', user_id)
@@ -493,11 +662,12 @@ def select_group(id):
         (id, first_deck_id, user_id, )
     )
     db.commit()
-    return redirect(url_for('simplecards.index'))
+    return redirect(url_for('simplecards.index', lookup=lookup))
 
 @bp.route('/<int:id>/select-deck', methods=('GET', 'POST'))
 #@login_required
 def select_deck(id):
+    lookup = request.args.get('lookup')
     db = get_db()
     user_id = str(session.get('user_id'))
     print('select-deck user id:', user_id)
@@ -512,4 +682,4 @@ def select_deck(id):
         (id, user_id, )
     )
     db.commit()
-    return redirect(url_for('simplecards.index'))
+    return redirect(url_for('simplecards.index', lookup=lookup))

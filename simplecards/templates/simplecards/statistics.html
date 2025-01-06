@@ -1,1 +1,17 @@
-Statistics
+{% extends 'base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+
+<div id="statistics">
+  <p>You have {{ groups_count }} groups, {{ decks_count }} decks and {{ cards_count }} cards.</p>
+  <p>Your total learn time is: {{ learn_time }} seconds.</p>
+  <p>You used {{ learned_cards }} cards in your learnings.</p>
+  <form action="{{ url_for('simplecards.delete_learn_data') }}" method="post">
+    <input name="delete-learn-data" id="delete-learn-data" type="submit" value="Delete learn data"/>
+  </form>
+</div>
+
+{% endblock content %}

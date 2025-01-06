@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<span>{% block title %}New Card{% endblock %}</span>
 {% endblock %}
 
 {% block content %}
 <form method="post" class="form">
+  <p>{% block title %}Create Group{% endblock %}</p>
   <input name="name" id="name" placeholder="Name"required>
   <div class="checkbox">
     <input type="checkbox" name="public" id="public" value="public">

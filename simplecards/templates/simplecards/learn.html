@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container learn-container">
+  <input id="learn-button" type="button" onclick="learn_func()" value="LEARN"/>
+  <div id="learn-panel">
+
+    <div class="learn-box" id="debug">
+      debug
+    </div>
+    
+    <div class="learn-box" id="number">
+      card
+    </div>
+
+    <div class="learn-box" id="question">
+      question
+    </div>
+
+    <textarea class="learn-box" id="answer">
+      answer
+    </textarea>
+
+    <div class="learn-box" id="total_learn_time" style="display: none;">
+      Your total learn time is: 
+    </div>
+
+    <div class="learn-box" id="learned_cards" style="display: none;">
+      You learned 
+    </div>
+
+  </div>
+
+</div>
+<script>
+
+  function sleep(ms) {
+      // debug = document.getElementById("debug");
+      // debug.textContent = "in sleep";
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+  async function learn_func() {
+      debug = document.getElementById("debug");
+      number = document.getElementById("number");
+      question = document.getElementById("question");
+      answer = document.getElementById("answer");
+      total_learn_time = document.getElementById("total_learn_time");
+      learned_cards = document.getElementById("learned_cards");
+
+      const cards = {{cards | tojson}}
+
+      const read_time_per_char = 50;
+      const q_min_read_time = 500;
+      const a_min_read_time = 2000;
+      let q_read_time = 0;
+      let a_read_time = 0;
+      let total_learn_time_value = 0;
+
+      //debug.textContent = typeof cards;
+
+      for (const [i, card] of cards.entries()) {
+
+	  q_len=card['question'].length;
+	  a_len=card['answer'].length;
+	  if (q_min_read_time>q_len*read_time_per_char) {
+	      q_read_time=q_min_read_time;
+	  } else {
+	      q_read_time=q_len*read_time_per_char;
+	  }
+	  if (a_min_read_time>a_len*read_time_per_char) {
+	      a_read_time=a_min_read_time;
+	  } else {
+	      a_read_time=a_len*read_time_per_char;
+	  }
+	  
+	  debug.textContent = "q:"+q_len+" "+q_read_time+" a:"+a_len+" "+a_read_time;
+
+	  number.textContent = "Card " + (i+1) + ".";
+	  question.textContent = card['question'];
+	  answer.textContent = "";
+	  await sleep(q_read_time);
+	  answer.textContent = card['answer'];
+	  await sleep(a_read_time);
+	  total_learn_time_value += q_read_time;
+	  total_learn_time_value += a_read_time;
+	  
+      }
+
+      total_learn_time.textContent += (total_learn_time_value/1000)+' seconds';
+      total_learn_time.style.display = 'block';
+      
+      learned_cards.textContent += cards.length+' cards.';
+      learned_cards.style.display = 'block';
+
+      document.getElementById("learn-button").disabled = true;
+
+      let data = new FormData();
+      data.append("learn_time", total_learn_time_value);
+      data.append("learned_cards", cards.length);
+
+      const save_learn_url = {{ url_for("simplecards.save_learn")|tojson }};
+      fetch(save_learn_url, {
+	  "method": "POST",
+	  "body": data,
+      });
+      
+      
+      // document.body.style.backgroundColor = "blue";
+  }
+</script>
+{% endblock %}

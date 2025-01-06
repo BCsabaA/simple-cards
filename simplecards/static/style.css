@@ -1,6 +1,7 @@
 :root {
     --row-height: 50px;
     --row-height-medium: 30px;
+
     --background: #E9ECEF;
     --background-error: #8C2F39;
     --shadow: #CED4DA;
@@ -65,6 +66,8 @@ header {
     top: calc(var(--row-height) + 10px);
 }
 
+.active-view { border-bottom: 3px solid black; }
+
 .flash {
     top: calc(var(--row-height)* + 10px);
     left: 0;
@@ -89,6 +92,7 @@ header {
     min-height: calc(100vh - ((var(--row-height) + 10px) * 2 )); */
     height: auto;
     display: flex;
+    align-items: center;
     margin: calc((var(--row-height) + 10px) * 2 + 5px) 10vw;
     background-color: var(--background);
     box-shadow: 0px 0px 5px 5px var(--shadow);
@@ -100,28 +104,39 @@ header {
     flex-direction: column;
     align-items: center;
     margin: 5vh auto;
-    width: 20vw;
+    width: 50vw;
 }
 
-.form input, .form div {
+.form input, .form div:not(.secondary-div), .form textarea {
     box-sizing: border-box;
     width: 100%;
     padding: 0 0.5rem;
-    margin: 0 0 10px 0;
+    /* margin: 0 0 10px 0; */
     margin-bottom: 10px;
-    height: 2rem;
     border-radius: 5px;
     border: 1px solid black;
     background-color: var(--background);
+    font-size: 1rem;
 }
 
-.checkbox {
+.form input, .form div {
+    height: 2rem;
+}
+
+form p {
+    margin: 0;
+    padding: 5px 0 5px 0;
+    width: 100%;
+    font-weight: bold;
+}
+
+.checkbox, .filebox {
     display: flex;
     justify-content: flex-start;
     align-items: center;
 }
 
-#public {
+input[type= 'checkbox'], input[type= 'radio'] {
     height: 1rem;
     margin: 0;
     padding: 0;
@@ -131,10 +146,26 @@ header {
     background: var(--text);
 }
 
+form input.secondary-div, form label.box-label {
+    margin-left: 20px;
+    width: calc(100% - 20px);
+}
+
+form label.box-label {
+    font-size = 0.75rem;
+}
+
+form .break-line {
+    border-top: 1px solid black;
+    height: 0;
+    width: 100%;
+    margin: 10px;
+}
+
 .container {
     display: grid;
     width: 100%;
-    grid-template-columns: 33% 33% auto;
+    grid-template-columns: 30% 30% auto;
     gap: 20px 10px;
     padding: 10px;
     
@@ -177,7 +208,7 @@ header {
     gap: 5px;
     flex-direction: column;
     justify-content: space-evenly;
-    align-items: center;
+    align-items: left;
 }
 
 .group, #add-group {
@@ -205,7 +236,7 @@ header {
 
 .about {
     font-size: 0.75rem;
-    text-align: right;
+    /* text-align: right; */
 }
 
 .group-list, .deck-list, .card-list {
@@ -215,11 +246,21 @@ header {
 .group p, .deck p, .card p {
     margin: 0;
     padding: 0;
-    width: 100%;
+    width: auto;
+    word-break: break-all;
+    white-space: normal;
+}
+
+.group-name {
+    width: auto;
+}
+
+.card-data {
+    width: auto;
 }
 
 .options {
-    width: 100%;
+    width: auto;
     display: flex;
     justify-content: space-between;
 }
@@ -227,10 +268,70 @@ header {
 .auth-options {
     display: flex;
     justify-content: flex-end;
-    width: 100%;
+    width: auto;
 }
 
-@media (max-width: 640px) {
+.learn-container {
+    min-height: calc(100vh - (var(--row-height) + 20px) * 2 - 10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+#learn-button {
+    width: fit-content;
+}
+
+#learn-panel {
+    box-sizing: border-box;
+    color: var(--deck-text-color);
+    /*box-shadow: 0px 0px 2px 2px var(--deck-shadow-color);*/
+    border-radius: 2px;
+    margin: 30px 60px;
+    width: 300px;
+    /* height: auto; */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    /* grid-template-columns: auto; */
+    /* row-gap: 20px; */
+}
+
+.learn-box {
+    /* border: 1px solid black; */
+    border-radius: 3px;
+    padding: 5px;
+    width: auto;
+    /* height: fit-content; */
+}
+
+textarea {
+    box-sizing: border-box;
+    padding: 5px;
+}
+
+textarea#answer {
+    background-color: var(--background);
+    color: var(--deck-text-color);
+    font-size: 1rem;
+    field-sizing: content;
+    border: 0;
+}
+
+#statistics {
+    width: 50%;
+    margin: 30px auto;
+}
+
+#delete-learn-data {
+    background-color: var(--background-error);
+    color: var(--text-error);
+    width: 100%;
+    border-radius: 5px;
+}
+
+
+@media (max-width: 512px) {
     
     nav, header, .flash{
         margin: 5px 0;
@@ -255,7 +356,11 @@ header {
     }
 
     .group p, .deck p, .card p {
-        width: auto;
+        max-width: 90%;
+    }
+
+    .group-name {
+	width: 300px;
     }
 
     .options {

@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<span>{% block title %}New Card for Deck {{ selected_deck_name }} of Group {{ selected_group_name }} {% endblock %}</span>
 {% endblock %}
 
 {% block content %}
 <form method="post" class="form">
-  <input type="text" class="id" id="group_id" value={{ selected_group_id }} disabled>
-  <input type="text" class="id" id="deck_id" value={{ selected_deck_id }} disabled>
-  <input name="question" id="question" placeholder="Question" required>
-  <input name="answer" id="answer" placeholder="Answer" required>
+  <p>{% block title %}New Card for Deck {{ selected_deck_name }} of Group {{ selected_group_name }} {% endblock %}</p>
+  <!-- <input type="text" class="id" id="group_id" value={{ selected_group_id }} disabled> -->
+  <!-- <input type="text" class="id" id="deck_id" value={{ selected_deck_id }} disabled> -->
+  <input name="question" id="question" placeholder="Question" autofocus required>
+  <textarea name="answer" id="create-answer" placeholder="Answer" rows="5" required></textarea>
   <div class="checkbox">
     <input type="checkbox" name="public" id="public" value="public">
     <label for="public">public</label>

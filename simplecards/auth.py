@@ -80,7 +80,7 @@ def login():
             )
             db.commit()
             print("in auth/login after selection insert")
-            return redirect(url_for('index'))
+            return redirect(url_for('index', lookup='owned'))
 
         flash(error)
 

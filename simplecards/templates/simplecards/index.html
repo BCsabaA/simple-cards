@@ -1,16 +1,6 @@
 {% extends 'base.html' %}
 
 {% block header %}
-{% if g.user %}
-<a class="action" href="{{ url_for('simplecards.index') }}">Public</a>
-<a class="action" href="{{ url_for('simplecards.owned') }}">Owned</a>
-<a class="action" href="{{ url_for('simplecards.import_csv') }}">Import</a>
-<a class="action" href="{{ url_for('simplecards.export') }}">Export</a>
-<a class="action" href="{{ url_for('simplecards.settings') }}">Settings</a>
-<a class="action" href="{{ url_for('simplecards.statistics') }}">Statistics</a>
-{% else %}
-<a class="action" href="{{ url_for('simplecards.index') }}">Public</a>
-{% endif %}
 {% endblock %}
 
 <!--{{ group['created'].strftime('%Y-%m-%d') }}-->
@@ -25,13 +15,18 @@
       </a>
     </div>
     <div id="group-list">
+      {%if not groups%}
+      <p>no groups yet...</p>
+      {%else%}
       {% for group in groups %}
       <div class="group {% if selected_group_id == group['id'] %} group-selected{% endif %}">
-        <!-- <p>ID: {{ group['id'] }}</p> -->
-        <p>{{ group['name'] }}</p>
-        <p class="about"><i>by {{ group['username'] }}</i></p>
+	<div class="group-name">
+          <!-- <p>ID: {{ group['id'] }}</p> -->
+          <p>{{ group['name'] }}</p>
+          <p class="about"><i>by {{ group['username'] }}</i></p>
+	</div>
         <div class="options">
-          <a href="{{ url_for('simplecards.select_group', id=group['id']) }}">
+          <a href="{{ url_for('simplecards.select_group', id=group['id'], lookup=view_name) }}">
             <img src="{{ url_for('static', filename='view.svg') }}" alt="view">
           </a>
           {% if g.user['id'] == group['owner_id'] %}
@@ -47,6 +42,7 @@
         </div>
       </div>
       {% endfor %}
+      {% endif %}
     </div>
   </div>
 
@@ -67,10 +63,10 @@
         <!-- <p>#{{ deck['id'] }}</p> -->
         <p>{{ deck['name'] }}</p>
         <div class="options">
-          <a href="{{ url_for('simplecards.select_deck', id=deck['id']) }}">
+          <a href="{{ url_for('simplecards.select_deck', id=deck['id'], lookup=view_name) }}">
             <img src="{{ url_for('static', filename='view.svg') }}" alt="view">
           </a>
-          <a href="{{ url_for('simplecards.select_deck', id=deck['id']) }}">
+          <a href="{{ url_for('simplecards.learn_deck', id=deck['id']) }}">
             <img src="{{ url_for('static', filename='school.svg') }}" alt="view">
           </a>
           {% if g.user['id'] == selected_group_owner_id %}
@@ -105,8 +101,10 @@
       {% for card in cards %}
       <div class="card">
         <!-- <p>#{{ card['id'] }}</p> -->
-        <p>{{ card['question'] }}</p>
-        <p>{{ card['answer'] }}</p>
+	<div class="card-data">
+          <p>{{ card['question'] }}</p>
+          <p><i>{{ card['answer'] }}</i></p>
+	</div>
         {% if g.user['id'] == selected_group_owner_id %}
         <div class="auth-options">
           <a class="action" href="{{ url_for('simplecards.update_card', id=card['id']) }}">

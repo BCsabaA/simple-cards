@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<span>{% block title %}Update Deck <i>'{{ deck_name }}'</i> of Group <i>'{{ group_name }}'</i> {% endblock %}</span>
 {% endblock %}
 
 {% block content %}
 <form method="post" class="form">
+  <p>{% block title %}Update Deck <i>'{{ deck_name }}'</i> of Group <i>'{{ group_name }}'</i> {% endblock %}</p>
   <input type="text" class="id" id="id" value={{ deck_id }} disabled>
   <input name="name" id="name" placeholder="Name" value="{{deck_name}}" required>
   <div class="checkbox">

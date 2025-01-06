@@ -5,14 +5,108 @@
 
 {% block content %}
 <form method="post" class="form">
+  <p>Cards list</p>
   <div class="checkbox">
-    <input type="checkbox" name="by_char" id="by_char">
-    <label for="by_char">Calculate learn time by characters</label>
+    <input type="radio" name="learn_set" id="random_mode" value="random"/>
+    <label for="random_mode">Random</label>
   </div>
-  <input name="time_per_char" id="time_per_char" type="number" placeholder="seconds" required>
+  <div class="checkbox">
+    <input type="radio" name="learn_set" id="name_mode" value="name"/ checked>
+    <label for="random_mode">Ordered alphabetically by question</label>
+  </div>
+  <div class="checkbox">
+    <input type="radio" name="learn_set" id="id_mode" value="id"/>
+    <label for="random_mode">Ordered by id</label>
+  </div>
 
+  <div class="break-line"></div>
+  <p>Repeat list</p>
+  <div class="checkbox">
+    <input type="radio" name="repeat_set" id="repeat" value="repeat"/>
+    <label for="repeat">Yes</label>
+  </div>
+  <div class="checkbox">
+    <input type="radio" name="repeat_set" id="no_repeat" value="no_repeat" checked/>
+    <label for="no-repeat">No</label>
+  </div>
 
+  <div class="break-line"></div>
+  <p>Read time</p>
+  <div id="debug" style="display: none;"></div>
+  <div class="checkbox">
+    <input type="radio" name="time_set" id="by_char" onchange="toggle();" checked>
+    <label for="by_char">Calculate read time by characters</label>
+  </div>
+  <label class="box-label by_char_setting" for="time_per_char">milliseconds per char</label>
+  <input class="secondary-div by_char_setting" name="time_per_char" id="time_per_char" type="number" value="50" style="display: block;" required>
+  <label class="box-label by_char_setting" for="q_min_time">minimum read time for questions in ms</label>
+  <input class="secondary-div by_char_setting" name="q_min_time" id="q_min_time" type="number" value="1000" style="display: block;" required>
+  <label class="box-label by_char_setting" for="a_min_time">minimum read time for answers in ms</label>
+  <input class="secondary-div by_char_setting" name="a_min_time" id="a_min_time" type="number" value="2000" style="display: block;" required>
+
+  <div class="checkbox">
+    <input type="radio" name="time_set" id="by_value" onchange="toggle()">
+    <label for="by_value">Set read time for card manually</label>
+  </div>
+  <label class="box-label by_value_setting" for="q_time" style="display: none;">read time for questions in ms</label>
+  <input class="secondary-div by_value_setting" name="q_time" id="q_time" type="number" value="2000" style="display: none;" required>
+  <label class="box-label by_value_setting" for="a_time" style="display: none;">read time for answers in ms</label>
+  <input class="secondary-div by_value_setting" name="a_time" id="a_time" type="number" value="5000" style="display: none;" required>
   
+  <div class="break-line"></div>
   <input type="submit" value="Save">
 </form>
+
+<script>
+
+  function get_elements_for_char() {
+      const elements_for_char = [];
+      elements_for_char.push(
+	  document.getElementById('time_per_char'),
+	  document.getElementById('q_min_time'),
+	  document.getElementById('a_min_time'),
+      );
+      return elements_for_char;
+  }
+
+  function get_elements_for_value() {
+      const elements_for_value = [];
+      elements_for_value.push(
+	  document.getElementById('q_time'),
+	  document.getElementById('a_time'),
+      );
+      return elements_for_value;
+  }
+
+  var toggle_time = 0;
+  function toggle() {
+      by_char = document.getElementById('by_char');
+      by_value = document.getElementById('by_value');
+      elements_for_char = document.getElementsByClassName(' by_char_setting');
+      elements_for_value = document.getElementsByClassName(' by_value_setting');
+      debug = document.getElementById('debug');
+      if (by_char.checked) {
+	  for (const element of elements_for_char) {
+	      element.style.display = 'block';
+	  }
+	  for (const element of elements_for_value) {
+	      element.style.display = 'none';
+	  }
+	  toggle_time += 1;
+	  debug.textContent = toggle_time;
+      }
+      else if (by_value.checked) {
+	  for (const element of elements_for_char) {
+	      element.style.display = 'none';
+	  }
+	  for (const element of elements_for_value) {
+	      element.style.display = 'block';
+	  }
+	  toggle_time += 1;
+	  debug.textContent = toggle_time;
+      }
+  }
+  
+</script>
+
 {% endblock content %}

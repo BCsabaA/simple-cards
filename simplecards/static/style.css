@@ -66,7 +66,7 @@ header {
     top: calc(var(--row-height) + 10px);
 }
 
-.active-view { border-bottom: 1px solid black; }
+.active-view { border-bottom: 3px solid black; }
 
 .flash {
     top: calc(var(--row-height)* + 10px);
@@ -107,29 +107,36 @@ header {
     width: 50vw;
 }
 
-.form input, .form div, .form textarea {
+.form input, .form div:not(.secondary-div), .form textarea {
     box-sizing: border-box;
     width: 100%;
     padding: 0 0.5rem;
-    margin: 0 0 10px 0;
+    /* margin: 0 0 10px 0; */
     margin-bottom: 10px;
     border-radius: 5px;
     border: 1px solid black;
     background-color: var(--background);
+    font-size: 1rem;
 }
 
 .form input, .form div {
     height: 2rem;
 }
 
-.checkbox {
+form p {
+    margin: 0;
+    padding: 5px 0 5px 0;
+    width: 100%;
+    font-weight: bold;
+}
+
+.checkbox, .filebox {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    background-color: yellow;
 }
 
-#public {
+input[type= 'checkbox'], input[type= 'radio'] {
     height: 1rem;
     margin: 0;
     padding: 0;
@@ -137,6 +144,22 @@ header {
     margin-right: 0.5rem;
     color: var(--text);
     background: var(--text);
+}
+
+form input.secondary-div, form label.box-label {
+    margin-left: 20px;
+    width: calc(100% - 20px);
+}
+
+form label.box-label {
+    font-size = 0.75rem;
+}
+
+form .break-line {
+    border-top: 1px solid black;
+    height: 0;
+    width: 100%;
+    margin: 10px;
 }
 
 .container {

@@ -216,7 +216,39 @@ def export():
 @bp.route('/settings')
 @login_required
 def settings():
-    return render_template('simplecards/settings.html', view_name='settings')
+    db = get_db()
+    user_setting = db.execute(
+        'SELECT *,'
+        ' learn_mode.name as lm_name,'
+        ' read_time.name as rt_name'
+        ' FROM user_settings'
+        ' JOIN learn_mode ON learn_mode_id=learn_mode.id'
+        ' JOIN read_time ON read_time_id=read_time.id'
+        ' WHERE user_id=?;',
+        (str(session.get('user_id')), )
+    ).fetchone()
+
+    learn_modes = db.execute(
+        'SELECT * FROM learn_mode;'
+    ).fetchall()
+
+    read_times = db.execute(
+        'SELECT * FROM read_time;'
+    ).fetchall()
+    
+    print('SETTING:', user_setting['user_id'])
+    print('SETTING:', user_setting['ms_per_char'])
+    print('SETTING:', user_setting['lm_name'])
+    print('SETTING:', user_setting['rt_name'])
+
+    
+    return render_template(
+        'simplecards/settings.html',
+        view_name='settings',
+        user_setting=user_setting,
+        learn_modes=learn_modes,
+        read_times=read_times
+    )
 
 @bp.route('/statistics')
 @login_required

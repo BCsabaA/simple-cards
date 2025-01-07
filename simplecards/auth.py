@@ -17,6 +17,7 @@ def register():
         password = request.form['password']
         repeat_password = request.form['repeat_password']
         db = get_db()
+        cursor = db.cursor()
         error = None
 
         if not username:
@@ -34,9 +35,16 @@ def register():
         if error is None:
             try:
                 sql = "INSERT INTO user (username, email, password, role_id) VALUES (?, ?, ?, ?)"
-                db.execute(
+                cursor.execute(
                     sql,
                     (username, email, generate_password_hash(password), "normal"),
+                )
+                last_row_id = cursor.lastrowid
+                print('LAST ROW IS:', last_row_id)
+                sql_user_settings = 'INSERT INTO user_settings (user_id) VALUES (?);'
+                cursor.execute(
+                    sql_user_settings,
+                    (last_row_id, )
                 )
                 db.commit()
             except db.IntegrityError:

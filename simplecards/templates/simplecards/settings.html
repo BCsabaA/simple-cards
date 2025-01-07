@@ -5,10 +5,10 @@
 
 {% block content %}
 <form method="post" class="form">
-  <p>Cards list</p>
+  <p>Cards list order</p>
   <div class="checkbox">
     <input type="radio" name="learn_set" id="random_mode" value="random"/>
-    <label for="random_mode">Random</label>
+    <label for="random_mode">{{ user_setting.lm_name }}</label>
   </div>
   <div class="checkbox">
     <input type="radio" name="learn_set" id="name_mode" value="name"/ checked>
@@ -20,6 +20,7 @@
   </div>
 
   <div class="break-line"></div>
+  
   <p>Repeat list</p>
   <div class="checkbox">
     <input type="radio" name="repeat_set" id="repeat" value="repeat"/>

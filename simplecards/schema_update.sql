@@ -16,8 +16,8 @@ CREATE TABLE read_time (
 );
 
 INSERT INTO read_time (name) VALUES
-    ("by length of text"),
-    ("set manually");
+    ("by_char"),
+    ("by_value");
 
 CREATE TABLE user_settings (
     user_id INTEGER PRIMARY KEY,

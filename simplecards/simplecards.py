@@ -213,10 +213,11 @@ def export():
     
     return render_template('simplecards/export.html', view_name='export')
 
-@bp.route('/settings')
+@bp.route('/settings', methods=('GET', 'POST'))
 @login_required
 def settings():
     db = get_db()
+    
     user_setting = db.execute(
         'SELECT *,'
         ' learn_mode.name as lm_name,'
@@ -241,6 +242,36 @@ def settings():
     print('SETTING:', user_setting['lm_name'])
     print('SETTING:', user_setting['rt_name'])
 
+    if request.method == 'POST':
+        print('SETTING: learn_mode:', request.form['learn_mode'])
+        print('SETTING: repeat_list:', request.form['repeat_list'])
+        print('SETTING: read_time:', request.form['read_time'])
+        db.execute(
+            'UPDATE user_settings SET'
+            ' learn_mode_id=?,'
+            ' repeat_list=?,'
+            ' read_time_id=?,'
+            ' ms_per_char=?,'
+            ' q_min_read=?,'
+            ' a_min_read=?,'
+            ' q_read=?,'
+            ' a_read=?'
+            ' WHERE user_id=?;',
+            (
+                request.form['learn_mode'],
+                1 if request.form['repeat_list']=="repeat" else 0,
+                request.form['read_time'],
+                request.form['ms_per_char'],
+                request.form['q_min_read'],
+                request.form['a_min_read'],
+                request.form['q_read'],
+                request.form['a_read'],
+                str(session.get('user_id')),
+            )
+        )
+        db.commit()
+        return redirect(url_for('simplecards.settings'))
+        
     
     return render_template(
         'simplecards/settings.html',

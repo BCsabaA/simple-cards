@@ -9,9 +9,9 @@
 
   {% for learn_mode in learn_modes %}
   <div class="checkbox">
-    <input type="radio" name="learn_set" value="random" onchange="enableSubmit();" {% if
+    <input type="radio" name="learn_mode" id="lm_{{loop.index}}" value="{{learn_mode.id}}" onchange="enableSubmit();" {% if
       user_setting.lm_name==learn_mode.name %}checked{% endif %} />
-    <label for="random_mode">{{ learn_mode.name }}</label>
+    <label for="lm_{{loop.index}}">{{ learn_mode.name }}</label>
   </div>
   {% endfor %}
 
@@ -19,45 +19,44 @@
 
   <p>Repeat list</p>
   <div class="checkbox">
-    <input type="radio" name="repeat_set" id="repeat" value="repeat" onchange="enableSubmit();" {% if user_setting.repeat_list==1 %}checked{% endif
+    <input type="radio" name="repeat_list" id="repeat" value="repeat" onchange="enableSubmit();" {% if user_setting.repeat_list==1 %}checked{% endif
       %} />
     <label for="repeat">Yes</label>
   </div>
   <div class="checkbox">
-    <input type="radio" name="repeat_set" id="no_repeat" value="no_repeat" onchange="enableSubmit();" {% if user_setting.repeat_list==0 %}checked{%
+    <input type="radio" name="repeat_list" id="no_repeat" value="no_repeat" onchange="enableSubmit();" {% if user_setting.repeat_list==0 %}checked{%
       endif %} />
     <label for="no-repeat">No</label>
   </div>
 
   <div class="break-line"></div>
+  
   <p>Read time</p>
   <div id="debug" style="display: none;"></div>
 
   <div class="checkbox">
-    <input type="radio" name="time_set" id="by_char" onchange="toggle();" {% if user_setting.rt_name=="by_char"
-      %}checked{% endif %}>
+    <input type="radio" name="read_time" id="by_char" onchange="toggle();" value="1" {% if user_setting.rt_name=="by_char" %}checked{% endif %}>
     <label for="by_char">Calculate read time by length of text</label>
   </div>
   <label class="box-label by_char_setting" for="time_per_char">milliseconds per char</label>
-  <input class="secondary-div by_char_setting" name="time_per_char" id="time_per_char" type="number" value={{
+  <input class="secondary-div by_char_setting" name="ms_per_char" id="ms_per_char" type="number" value={{
     user_setting.ms_per_char }} style="display: block;" onchange="enableSubmit();" required>
-  <label class="box-label by_char_setting" for="q_min_time">minimum read time for questions in ms</label>
-  <input class="secondary-div by_char_setting" name="q_min_time" id="q_min_time" type="number" value={{
+  <label class="box-label by_char_setting" for="q_min_read">minimum read time for questions in ms</label>
+  <input class="secondary-div by_char_setting" name="q_min_read" id="q_min_read" type="number" value={{
     user_setting.q_min_read }} style="display: block;" onchange="enableSubmit();" required>
-  <label class="box-label by_char_setting" for="a_min_time">minimum read time for answers in ms</label>
-  <input class="secondary-div by_char_setting" name="a_min_time" id="a_min_time" type="number" value={{
+  <label class="box-label by_char_setting" for="a_min_read">minimum read time for answers in ms</label>
+  <input class="secondary-div by_char_setting" name="a_min_read" id="a_min_read" type="number" value={{
     user_setting.a_min_read }} style="display: block;" onchange="enableSubmit();" required>
 
   <div class="checkbox">
-    <input type="radio" name="time_set" id="by_value" onchange="toggle()" {% if user_setting.rt_name=="by_value"
-      %}checked{% endif %}>
+    <input type="radio" name="read_time" id="by_value" onchange="toggle()" value="2" {% if user_setting.rt_name=="by_value" %}checked{% endif %}>
     <label for="by_value">Set read time for card manually</label>
   </div>
-  <label class="box-label by_value_setting" for="q_time" style="display: none;">read time for questions in ms</label>
-  <input class="secondary-div by_value_setting" name="q_time" id="q_time" type="number" value={{ user_setting.q_read }}
+  <label class="box-label by_value_setting" for="q_read" style="display: none;">read time for questions in ms</label>
+  <input class="secondary-div by_value_setting" name="q_read" id="q_read" type="number" value={{ user_setting.q_read }}
     style="display: none;" onchange="enableSubmit();" required>
-  <label class="box-label by_value_setting" for="a_time" style="display: none;">read time for answers in ms</label>
-  <input class="secondary-div by_value_setting" name="a_time" id="a_time" type="number" value={{ user_setting.a_read }}
+  <label class="box-label by_value_setting" for="a_read" style="display: none;">read time for answers in ms</label>
+  <input class="secondary-div by_value_setting" name="a_read" id="a_read" type="number" value={{ user_setting.a_read }}
     style="display: none;" onchange="enableSubmit();" required>
 
   <div class="break-line"></div>
@@ -99,8 +98,14 @@
       toggle_time += 1;
       debug.textContent = toggle_time;
     }
+      enableSubmit();
   }
 
+
+  window.onload = function() {
+      toggle();
+      document.getElementById("submit").disabled = true;
+  }
 </script>
 
 {% endblock content %}

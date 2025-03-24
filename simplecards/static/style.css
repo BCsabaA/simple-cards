@@ -234,7 +234,7 @@ form .break-line {
     background-color: var(--deck-bg-color);;
 }
 
-.about {
+sub {
     font-size: 0.75rem;
     /* text-align: right; */
 }
@@ -247,16 +247,16 @@ form .break-line {
     margin: 0;
     padding: 0;
     width: auto;
-    word-break: break-all;
+    word-break: break-word;
     white-space: normal;
 }
 
-.group-name {
-    width: auto;
+.group-name, .deck-name {
+    width: 100%;
 }
 
 .card-data {
-    width: auto;
+    width: 100%;
 }
 
 .options {
@@ -278,8 +278,14 @@ form .break-line {
     justify-content: flex-start;
 }
 
-#learn-button {
-    width: fit-content;
+#learn_buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.learn-button {
+    width: 5rem;
+    margin: 10px 5px;
 }
 
 #learn-panel {
@@ -287,9 +293,9 @@ form .break-line {
     color: var(--deck-text-color);
     /*box-shadow: 0px 0px 2px 2px var(--deck-shadow-color);*/
     border-radius: 2px;
-    margin: 30px 60px;
+    margin: 0 auto 30px auto;
     width: 300px;
-    /* height: auto; */
+    height: 80%; 
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -297,12 +303,20 @@ form .break-line {
     /* row-gap: 20px; */
 }
 
-.learn-box {
-    /* border: 1px solid black; */
+.learn-box, .learn-info {
     border-radius: 3px;
     padding: 5px;
-    width: auto;
-    /* height: fit-content; */
+    width: 100%;
+    margin: 10px auto;
+    height: fit-content;
+}
+
+.learn-box {
+    border: 1px solid black;
+}
+
+.learn-info {
+    text-align: center;
 }
 
 textarea {
@@ -316,6 +330,7 @@ textarea#answer {
     font-size: 1rem;
     field-sizing: content;
     border: 0;
+    width: 100%;
 }
 
 #statistics {
@@ -328,6 +343,10 @@ textarea#answer {
     color: var(--text-error);
     width: 100%;
     border-radius: 5px;
+}
+
+input[type= 'submit'] {
+    margin-top: 1.25rem;
 }
 
 

@@ -18,16 +18,17 @@ bp = Blueprint('simplecards', __name__)
 def index():
     lookup = request.args.get('lookup')
     db = get_db()
+    print('SIMPLECARDS.PY: lookup=', lookup)
     if lookup == 'public':
         groups = db.execute(
-            'SELECT g.id, owner_id, name, username'
+            'SELECT g.id, owner_id, public, name, username'
             ' FROM groups g JOIN user u ON g.owner_id = u.id'
             ' WHERE g.public=1'
             ' ORDER BY name'
         ).fetchall()
     else:
         groups = db.execute(
-            'SELECT g.id, owner_id, name, username'
+            'SELECT g.id, owner_id, public, name, username'
             ' FROM groups g JOIN user u ON g.owner_id = u.id'
             ' WHERE g.owner_id=?'
             ' ORDER BY name',
@@ -79,20 +80,36 @@ def index():
     else:
         selected_deck_name = deck['name']
 
-    decks = db.execute(
-        'SELECT *'
-        ' FROM deck d'
-        ' WHERE public=1 AND group_id=(?)'
-        ' ORDER BY name',
-        (str(selected_group_id), )
-    ).fetchall()
+    if lookup=='public':
+        decks = db.execute(
+            'SELECT *'
+            ' FROM deck d'
+            ' WHERE public=1 AND group_id=(?)'
+            ' ORDER BY name',
+            (str(selected_group_id), )
+        ).fetchall()
 
-    cards = db.execute(
-        'SELECT *'
-        ' FROM card'
-        ' WHERE public=1 and deck_id=(?)',
-        (str(selected_deck_id), )
-    ).fetchall()
+        cards = db.execute(
+            'SELECT *'
+            ' FROM card'
+            ' WHERE public=1 and deck_id=(?)',
+            (str(selected_deck_id), )
+        ).fetchall()
+    else:
+        decks = db.execute(
+            'SELECT *'
+            ' FROM deck d'
+            ' WHERE group_id=(?)'
+            ' ORDER BY name',
+            (str(selected_group_id), )
+        ).fetchall()
+
+        cards = db.execute(
+            'SELECT *'
+            ' FROM card'
+            ' WHERE deck_id=(?)',
+            (str(selected_deck_id), )
+        ).fetchall()
 
     for i, card in enumerate(cards):
         print(i, card['answer'])
@@ -433,8 +450,43 @@ def learn_deck(id):
         ' WHERE deck_id=?',
         (id, )
     ).fetchall()
+
+    user_setting = db.execute(
+        'SELECT * FROM user_settings'
+        ' WHERE user_id=?;',
+        (str(session.get('user_id')), )
+    ).fetchone()
+
+    print('LEARN ENDPOINT', user_setting['q_min_read'], user_setting)
+    
+    deck = db.execute(
+        'SELECT * FROM deck'
+        ' WHERE id=?;',
+        (id, )
+        ).fetchone()
+
+    group_name = db.execute(
+        'SELECT name FROM groups'
+        ' WHERE id=?;',
+        (deck['group_id'], )
+        ).fetchone()
+    
     card_list = [dict(card) for card in cards]
-    return render_template('simplecards/learn.html', cards=card_list)
+    return render_template(
+        'simplecards/learn.html',
+        cards=card_list,
+        deck_name=deck['name'],
+        group_name=group_name['name'],
+        learn_mode_id=user_setting['learn_mode_id'],
+        repeat_list=user_setting['repeat_list'],
+        read_time_id=user_setting['read_time_id'],
+        ms_per_char = user_setting['ms_per_char'],
+        q_min_read = user_setting['q_min_read'],
+        a_min_read = user_setting['a_min_read'],
+        q_read = user_setting['q_read'],
+        a_read = user_setting['a_read'],
+
+    )
 
 @bp.route('/save-learn', methods=('POST',))
 @login_required

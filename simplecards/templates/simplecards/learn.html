@@ -7,24 +7,34 @@
 {% block content %}
 
 <div class="container learn-container">
-  <input id="learn-button" type="button" onclick="learn_func()" value="LEARN"/>
+  <div id="learn_buttons">
+    <input class="learn-button" id="start" type="button" onclick="learn_func()" value="START"/>
+    <input class="learn-button" id="stop" type="button" onclick="stop_learn_func" value="STOP" style="display: none;"/>
+    <input class="learn-button" type="button" onclick="" value="RESTART" style="display: none;"/>
+  </div>
   <div id="learn-panel">
 
-    <div class="learn-box" id="debug">
-      debug
+    <div class="learn-info" id="learn_title">
+      deck {{ deck_name }} of group {{ group_name }}
     </div>
     
-    <div class="learn-box" id="number">
-      card
+    <div style="display: none;" class="learn-box" id="debug">
+      
+    </div>
+    
+    <div class="learn-info" id="number">
+      
     </div>
 
-    <div class="learn-box" id="question">
-      question
+    <div style="display: none;" class="learn-box" id="question">
+      
     </div>
 
-    <textarea class="learn-box" id="answer">
-      answer
-    </textarea>
+    <div style="display: none;" class="learn-box" id="answer">
+      <!-- <textarea class="learn-box" oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"' id="answer"> -->
+      <!-- 	answer -->
+      <!-- </textarea> -->
+    </div>
 
     <div class="learn-box" id="total_learn_time" style="display: none;">
       Your total learn time is: 
@@ -43,7 +53,13 @@
       // debug = document.getElementById("debug");
       // debug.textContent = "in sleep";
     return new Promise(resolve => setTimeout(resolve, ms));
-}
+  }
+
+  function stop_learn_func() {
+      stop_button = document.getElementById("stop");
+      stop_button.innerHTML = "CONTINUE";
+  }
+  
   async function learn_func() {
       debug = document.getElementById("debug");
       number = document.getElementById("number");
@@ -52,16 +68,34 @@
       total_learn_time = document.getElementById("total_learn_time");
       learned_cards = document.getElementById("learned_cards");
 
-      const cards = {{cards | tojson}}
+      start_button = document.getElementById("start");
+      start_button.disabled = true;
 
-      const read_time_per_char = 50;
-      const q_min_read_time = 500;
-      const a_min_read_time = 2000;
+      const cards = {{cards | tojson}};
+
+      debug.textContent = 'before assign';
+
+      //const user_setting = {{user_setting}};
+
+      const read_time_per_char = {{ms_per_char}};
+      const q_min_read_time = {{q_min_read}};
+      const a_min_read_time = {{a_min_read}};
+      const learn_mode_id = {{learn_mode_id}};
+      const repeat_list = {{repeat_list}};
+      
       let q_read_time = 0;
       let a_read_time = 0;
       let total_learn_time_value = 0;
 
-      //debug.textContent = typeof cards;
+      const show_debug = false;
+
+      debug.textContent = q_min_read_time;
+
+      if (show_debug == true) {
+	  debug.style.display = 'block';
+      } else {
+	  debug.style.display = 'none';
+      }
 
       for (const [i, card] of cards.entries()) {
 
@@ -78,14 +112,25 @@
 	      a_read_time=a_len*read_time_per_char;
 	  }
 	  
-	  debug.textContent = "q:"+q_len+" "+q_read_time+" a:"+a_len+" "+a_read_time;
-
+	  debug.textContent = "q:"+q_len+" "+q_min_read_time+" a:"+a_len+" "+a_min_read_time;
+	 
 	  number.textContent = "Card " + (i+1) + ".";
+
+	  question.style.display = 'block';
 	  question.textContent = card['question'];
+
 	  answer.textContent = "";
+	  
 	  await sleep(q_read_time);
+	  
+	  answer.style.display = 'block';
 	  answer.textContent = card['answer'];
 	  await sleep(a_read_time);
+
+	  question.style.display = 'none';
+	  answer.style.display = 'none';
+	  await sleep(500);
+	  
 	  total_learn_time_value += q_read_time;
 	  total_learn_time_value += a_read_time;
 	  
